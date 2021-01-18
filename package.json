@@ -1,0 +1,19 @@
+{
+  "name": "notes-graphql-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dro-1/notes-graphql-api.git"
+  },
+  "author": "Dro",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dro-1/notes-graphql-api/issues"
+  },
+  "homepage": "https://github.com/dro-1/notes-graphql-api#readme"
+}
