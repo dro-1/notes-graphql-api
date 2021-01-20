@@ -4,6 +4,7 @@ import { graphqlHTTP } from "express-graphql";
 import resolvers from "./graphql/resolvers";
 import schema from "./graphql/schema";
 import dbConnector from "./util/db";
+import { GraphQLError } from "graphql";
 
 const PORT = process.env.PORT || 8080;
 
@@ -11,12 +12,27 @@ const app = express();
 
 app.use(bodyParser.json());
 
+interface ErrorObject extends GraphQLError {
+  [key: string]: any;
+  originalError: any;
+}
+
 app.use(
   "/graphql",
   graphqlHTTP({
     schema,
     rootValue: resolvers,
     graphiql: true,
+    customFormatErrorFn: (err: ErrorObject) => {
+      if (err.originalError && err.originalError.data) {
+        err.data = err.originalError.data;
+      }
+      if (err.originalError && err.originalError.status) {
+        err.status = err.originalError.status;
+      }
+      return err;
+      ``;
+    },
   })
 );
 
