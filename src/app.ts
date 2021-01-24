@@ -5,6 +5,7 @@ import resolvers from "./graphql/resolvers";
 import schema from "./graphql/schema";
 import dbConnector from "./util/db";
 import { GraphQLError } from "graphql";
+import authMiddleware from "./middleware/auth";
 
 const PORT = process.env.PORT || 8080;
 
@@ -16,6 +17,8 @@ interface ErrorObject extends GraphQLError {
   [key: string]: any;
   originalError: any;
 }
+
+app.use(authMiddleware);
 
 app.use(
   "/graphql",

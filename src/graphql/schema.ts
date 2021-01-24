@@ -17,6 +17,7 @@ export default buildSchema(`
     type Note {
         title: String!
         content: String!
+        _id: String!
     }
 
     type User { 
@@ -39,10 +40,13 @@ export default buildSchema(`
     type RootMutation {
         createUser(userInput: CreateUserInput): User!
         addNote(title: String!, content: String!): AddNoteResponse!
+        editNote(title: String, content: String, noteId: String!): AddNoteResponse!
     }
 
     type RootQuery{
         login(loginInput: LoginInput): LoginResponse!
+        getNotes: [Note]!
+        getNote(noteId: String!): Note!
     }
 
     schema{
