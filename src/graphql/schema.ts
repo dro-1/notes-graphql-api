@@ -9,8 +9,7 @@ export default buildSchema(`
     }
 
     input LoginInput{
-        email: String
-        username: String
+       loginId: String!
         password: String!
     }
 
@@ -30,6 +29,7 @@ export default buildSchema(`
         token: String!
         message: String!
         user: User!
+        status: Int!
     }
 
     type AddNoteResponse {
@@ -37,8 +37,13 @@ export default buildSchema(`
         message: String!
     }
 
+    type CreateUserResponse {
+        message: String!
+        status: Int! 
+    }
+
     type RootMutation {
-        createUser(userInput: CreateUserInput): User!
+        createUser(userInput: CreateUserInput): CreateUserResponse!
         addNote(title: String!, content: String!): AddNoteResponse!
         editNote(title: String, content: String, noteId: String!): AddNoteResponse!
     }

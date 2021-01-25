@@ -18,6 +18,19 @@ interface ErrorObject extends GraphQLError {
   originalError: any;
 }
 
+app.use((req: any, res: any, next: any) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, OPTIONS",
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 app.use(authMiddleware);
 
 app.use(
@@ -36,7 +49,7 @@ app.use(
       return err;
       ``;
     },
-  })
+  }),
 );
 
 dbConnector(() => {
