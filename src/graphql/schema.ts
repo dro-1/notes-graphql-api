@@ -16,7 +16,9 @@ export default buildSchema(`
     type Note {
         title: String!
         content: String!
-        _id: String!
+        id: String!
+        type: String!
+        updatedAt: String!
     }
 
     type User { 
@@ -42,15 +44,26 @@ export default buildSchema(`
         status: Int! 
     }
 
+    type GetNotesResponse {
+        notes: [Note]!
+        status: Int!
+    }
+
+    type DeleteNoteResponse{
+        message: String!
+        status: Int!
+    }
+
     type RootMutation {
         createUser(userInput: CreateUserInput): CreateUserResponse!
-        addNote(title: String!, content: String!): AddNoteResponse!
-        editNote(title: String, content: String, noteId: String!): AddNoteResponse!
+        addNote(title: String!, content: String!, type: String!): AddNoteResponse!
+        editNote(title: String, content: String,, type: String!, noteId: String!): AddNoteResponse!
+        deleteNote(noteId: String!): DeleteNoteResponse!
     }
 
     type RootQuery{
         login(loginInput: LoginInput): LoginResponse!
-        getNotes: [Note]!
+        getNotes: GetNotesResponse!
         getNote(noteId: String!): Note!
     }
 

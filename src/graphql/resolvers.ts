@@ -149,9 +149,11 @@ const addNote = async (
   {
     title,
     content,
+    type,
   }: {
     title: string;
     content: string;
+    type: string;
   },
   req: any,
 ) => {
@@ -173,6 +175,14 @@ const addNote = async (
       message: "Content must be 3 or more characters",
     });
   }
+  if (
+    type !== "none" && type !== "personal" && type !== "todo" && type !== "work"
+  ) {
+    errors.push({
+      value: "type",
+      message: "Type must be either be none, personal, todo, work",
+    });
+  }
   if (errors.length > 0) {
     const error: ErrorObject = new Error("Invalid Input");
     error.status = 422;
@@ -184,6 +194,7 @@ const addNote = async (
   note = new Note({
     title,
     content,
+    type,
     owner: user,
   });
   note = await note.save();
@@ -290,7 +301,16 @@ const getNotes = async (args: any, req: any) => {
     error.status = 422;
     throw error;
   }
-  return user.notes;
+  return {
+    notes: user.notes.map((note: any) => {
+      return {
+        ...note._doc,
+        id: note._id.toString(),
+        updatedAt: new Date(note.updatedAt).getTime(),
+      };
+    }),
+    status: 200,
+  };
 };
 
 const getNote = async ({ noteId }: any, req: any) => {
@@ -310,7 +330,35 @@ const getNote = async ({ noteId }: any, req: any) => {
     error.status = 403;
     throw error;
   }
-  return note;
+  return {
+    ...note._doc,
+    id: note._id.toString(),
+    updatedAt: new Date(note.updatedAt).getTime(),
+  };
+};
+
+const deleteNote = async ({ noteId }: any, req: any) => {
+  if (!req.isAuth) {
+    const error: any = new Error("Inauthenticated User");
+    error.status = 401;
+    throw error;
+  }
+  const note = await Note.findById(noteId);
+  if (!note) {
+    const error: any = new Error("Note not found");
+    error.status = 404;
+    throw error;
+  }
+  if (note.owner.toString() !== req.userId) {
+    const error: any = new Error("User not authorized");
+    error.status = 403;
+    throw error;
+  }
+  await Note.findByIdAndDelete(noteId);
+  return {
+    message: "Note Successfully Deleted",
+    status: 204,
+  };
 };
 
 export default {
@@ -320,4 +368,5 @@ export default {
   getNotes,
   getNote,
   editNote,
+  deleteNote,
 };
