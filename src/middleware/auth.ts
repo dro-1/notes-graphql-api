@@ -8,6 +8,7 @@ interface SuperRequest extends Request {
 
 interface VerifiedToken {
   userId?: string;
+  userEmail?: string;
 }
 
 export default (
@@ -15,25 +16,40 @@ export default (
   res: Response<any, Record<string, any>>,
   next: NextFunction
 ) => {
-  let token = req.get("Authorization");
-  if (!token) {
+  let accessToken = req.cookies.access_token;
+  if (!accessToken) {
     req.isAuth = false;
     return next();
   }
-  token = token?.split(" ")[1];
-  let verifiedToken: VerifiedToken | string;
+  let csrfToken = req.get("csrf_token");
+  if (!csrfToken) {
+    req.isAuth = false;
+    return next();
+  }
+  let verifiedAccessToken: VerifiedToken | string;
+  let verifiedCsrfToken: VerifiedToken | string;
+  if (!process.env.ACCESS_TOKEN_SECRET || !process.env.CSRF_TOKEN_SECRET) {
+    return res.sendStatus(500);
+  }
   try {
-    verifiedToken = jwt.verify(token!, "fh23$rfcow0s!f9ewnd63@");
+    verifiedAccessToken = jwt.verify(
+      accessToken,
+      process.env.ACCESS_TOKEN_SECRET
+    );
+    verifiedCsrfToken = jwt.verify(csrfToken, process.env.CSRF_TOKEN_SECRET);
   } catch (err) {
     req.isAuth = false;
     return next();
   }
-  if (!verifiedToken) {
+  if (!verifiedAccessToken || !verifiedCsrfToken) {
     req.isAuth = false;
     return next();
   }
-  if (typeof verifiedToken === "object") {
-    req.userId = verifiedToken.userId;
+  if (
+    typeof verifiedAccessToken === "object" &&
+    typeof verifiedCsrfToken === "object"
+  ) {
+    req.userId = verifiedAccessToken.userId;
   }
   req.isAuth = true;
   next();

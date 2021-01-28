@@ -18,11 +18,12 @@ interface Note {
   title: string;
   content: string;
   save: Function;
+  type: string;
   id: string;
   _id: string;
   owner: any;
 }
-interface ErrorObject extends Error {
+export interface ErrorObject extends Error {
   [key: string]: any;
 }
 interface SuperRequest extends Request {
@@ -44,9 +45,7 @@ const createUser = async ({ userInput }: UserInput, req: SuperRequest) => {
     error.status = 422;
     throw error;
   }
-  if (
-    !isEmail(email) && normalizeEmail(email)
-  ) {
+  if (!isEmail(email) && normalizeEmail(email)) {
     errors.push({
       value: "email",
       message: "You must enter a valid email",
@@ -106,8 +105,8 @@ const login = async ({ loginInput }: LoginInput) => {
 
   let user;
   loginId.includes("@")
-    ? user = await User.findOne({ email: loginId })
-    : user = await User.findOne({ username: loginId });
+    ? (user = await User.findOne({ email: loginId }))
+    : (user = await User.findOne({ username: loginId }));
 
   if (!user) {
     const error: ErrorObject = new Error("Incorrect Login Details");
@@ -118,9 +117,7 @@ const login = async ({ loginInput }: LoginInput) => {
   const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
   if (!isPasswordCorrect) {
-    const error: ErrorObject = new Error(
-      "Incorrect Login Details",
-    );
+    const error: ErrorObject = new Error("Incorrect Login Details");
     error.status = 422;
     throw error;
   }
@@ -132,7 +129,7 @@ const login = async ({ loginInput }: LoginInput) => {
     "fh23$rfcow0s!f9ewnd63@",
     {
       expiresIn: "1hr",
-    },
+    }
   );
   return {
     message: "Signed In",
@@ -155,7 +152,7 @@ const addNote = async (
     content: string;
     type: string;
   },
-  req: any,
+  req: any
 ) => {
   if (!req.isAuth) {
     const error: any = new Error("Inauthenticated User");
@@ -176,7 +173,10 @@ const addNote = async (
     });
   }
   if (
-    type !== "none" && type !== "personal" && type !== "todo" && type !== "work"
+    type !== "none" &&
+    type !== "personal" &&
+    type !== "todo" &&
+    type !== "work"
   ) {
     errors.push({
       value: "type",
@@ -212,17 +212,18 @@ const editNote = async (
     title,
     content,
     noteId,
+    type,
   }: {
     title: string;
     content: string;
     noteId: string;
+    type: string;
   },
-  req: any,
+  req: any
 ) => {
-  console.log(title, content, noteId);
   let errors = [];
-  if (!title && !content) {
-    const error: ErrorObject = new Error("Title or Content is required");
+  if (!title && !content && !type) {
+    const error: ErrorObject = new Error("Field(s) to edit is(are) required");
     error.status = 422;
     throw error;
   }
@@ -251,6 +252,20 @@ const editNote = async (
     }
   }
 
+  if (type) {
+    if (
+      type !== "none" &&
+      type !== "personal" &&
+      type !== "todo" &&
+      type !== "work"
+    ) {
+      errors.push({
+        value: "type",
+        message: "Type must be either be none, personal, todo, work",
+      });
+    }
+  }
+
   if (errors.length > 0) {
     const error: ErrorObject = new Error("Invalid Input");
     error.status = 422;
@@ -264,29 +279,26 @@ const editNote = async (
     throw error;
   }
   let note: Note;
-  try {
-    note = await Note.findById(noteId);
-    if (note.owner.toString() !== req.userId) {
-      const error: any = new Error("User not authorized");
-      error.status = 403;
-      throw error;
-    }
-    console.log(note);
-    if (title) {
-      note.title = title;
-    }
-    if (content) {
-      note.content = content;
-    }
-    await note.save();
-    console.log(note);
-    return {
-      note,
-      message: "Note updated successfully",
-    };
-  } catch (err) {
-    console.log(err);
+  note = await Note.findById(noteId);
+  if (note.owner.toString() !== req.userId) {
+    const error: any = new Error("User not authorized");
+    error.status = 403;
+    throw error;
   }
+  if (title) {
+    note.title = title;
+  }
+  if (content) {
+    note.content = content;
+  }
+  if (type) {
+    note.type = type;
+  }
+  await note.save();
+  return {
+    note,
+    message: "Note updated successfully",
+  };
 };
 
 const getNotes = async (args: any, req: any) => {
