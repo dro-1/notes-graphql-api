@@ -28,7 +28,8 @@ interface ErrorObject extends GraphQLError {
 }
 
 app.use((req: any, res: any, next: any) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+  //http://localhost:3000
+  res.setHeader("Access-Control-Allow-Origin", "https://d-notes.netlify.app");
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader(
     "Access-Control-Allow-Methods",
@@ -85,6 +86,7 @@ app.get("/refresh-token", async (req, res, next) => {
       res.cookie("access_token", accessToken, {
         maxAge: 3600000,
         httpOnly: !!process.env.NODE_ENV,
+        sameSite: "none",
       });
       res.status(200).send({
         message: "Signed In",
