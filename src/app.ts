@@ -87,6 +87,7 @@ app.get("/refresh-token", async (req, res, next) => {
         maxAge: 3600000,
         httpOnly: !!process.env.NODE_ENV,
         sameSite: "none",
+        secure: true,
       });
       res.status(200).send({
         message: "Signed In",
@@ -155,6 +156,7 @@ app.post("/login", async (req, res, next) => {
     maxAge: 3600000,
     httpOnly: !!process.env.NODE_ENV,
     sameSite: "none",
+    secure: true,
   });
   res.status(200).send({
     message: "Signed In",
