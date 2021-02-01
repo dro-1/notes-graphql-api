@@ -32,11 +32,11 @@ app.use((req: any, res: any, next: any) => {
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET, POST, PUT, PATCH, OPTIONS",
+    "GET, POST, PUT, PATCH, OPTIONS"
   );
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, csrf_token, csrf_refresh_token",
+    "Content-Type, Authorization, csrf_token, csrf_refresh_token"
   );
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);
@@ -51,7 +51,7 @@ app.get("/refresh-token", async (req, res, next) => {
   }
   const verifiedToken: any = jwt.verify(
     csrfRefreshToken,
-    process.env.CSRF_TOKEN_SECRET,
+    process.env.CSRF_TOKEN_SECRET
   );
   if (verifiedToken && typeof verifiedToken === "object") {
     const user = await User.findOne({ email: verifiedToken.userEmail });
@@ -63,7 +63,7 @@ app.get("/refresh-token", async (req, res, next) => {
         process.env.ACCESS_TOKEN_SECRET,
         {
           expiresIn: "1hr",
-        },
+        }
       );
 
       const csrfToken = jwt.sign(
@@ -73,14 +73,14 @@ app.get("/refresh-token", async (req, res, next) => {
         process.env.CSRF_TOKEN_SECRET,
         {
           expiresIn: "1hr",
-        },
+        }
       );
 
       const csrfRefreshToken = jwt.sign(
         {
           userEmail: user.email.toString(),
         },
-        process.env.CSRF_TOKEN_SECRET,
+        process.env.CSRF_TOKEN_SECRET
       );
       res.cookie("access_token", accessToken, {
         maxAge: 3600000,
@@ -130,7 +130,7 @@ app.post("/login", async (req, res, next) => {
     process.env.ACCESS_TOKEN_SECRET,
     {
       expiresIn: "1hr",
-    },
+    }
   );
 
   const csrfToken = jwt.sign(
@@ -140,18 +140,19 @@ app.post("/login", async (req, res, next) => {
     process.env.CSRF_TOKEN_SECRET,
     {
       expiresIn: "1hr",
-    },
+    }
   );
 
   const csrfRefreshToken = jwt.sign(
     {
       userEmail: user.email.toString(),
     },
-    process.env.CSRF_TOKEN_SECRET,
+    process.env.CSRF_TOKEN_SECRET
   );
   res.cookie("access_token", accessToken, {
     maxAge: 3600000,
     httpOnly: !!process.env.NODE_ENV,
+    sameSite: "none",
   });
   res.status(200).send({
     message: "Signed In",
@@ -179,7 +180,7 @@ app.use(
       return err;
       ``;
     },
-  }),
+  })
 );
 
 dbConnector(() => {
