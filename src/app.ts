@@ -29,7 +29,10 @@ interface ErrorObject extends GraphQLError {
 
 app.use((req: any, res: any, next: any) => {
   //http://localhost:3000
-  res.setHeader("Access-Control-Allow-Origin", "https://d-notes.netlify.app");
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://d-notes.netlify.app"
+  );
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader(
     "Access-Control-Allow-Methods",
