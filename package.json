@@ -4,8 +4,10 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon dist/app.js",
-    "tsc": "tsc -w"
+    "start": "node dist/app.js",
+    "devstart": "nodemon dist/app.js",
+    "tsc": "tsc -w",
+    "postinstall": "tsc"
   },
   "repository": {
     "type": "git",
@@ -17,6 +19,9 @@
     "url": "https://github.com/dro-1/notes-graphql-api/issues"
   },
   "homepage": "https://github.com/dro-1/notes-graphql-api#readme",
+  "engines": {
+    "node": "12.18.1"
+  },
   "dependencies": {
     "@types/bcryptjs": "^2.4.2",
     "@types/cookie-parser": "^1.4.2",
